@@ -61,10 +61,23 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@theme inline {
+  --color-accent-red: var(--accent-red);
+  --color-accent-red-foreground: var(--accent-red-foreground);
+  --color-status-good: var(--status-good);
+  --color-status-warn: var(--status-warn);
+  --color-status-bad: var(--status-bad);
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
+  --accent-red: oklch(0.62 0.22 25);
+  --accent-red-foreground: oklch(0.99 0 0);
+  --status-good: oklch(0.68 0.17 145);
+  --status-warn: oklch(0.75 0.15 70);
+  --status-bad: oklch(0.62 0.22 25);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
