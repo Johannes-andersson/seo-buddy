@@ -242,25 +242,16 @@ export const analyzeEtsy = createServerFn({ method: "POST" })
     // AI rewrites
     const gateway = createLovableAiGatewayProvider(apiKey);
     const schema = z.object({
-      optimizedTitle: z
-        .string()
-        .describe("Rewritten Etsy listing title, max 140 characters, keyword-front-loaded, no ALL CAPS."),
+      optimizedTitle: z.string().describe("Rewritten Etsy title, up to 140 chars."),
       optimizedDescription: z
         .string()
-        .describe(
-          "Rewritten Etsy description with a strong hook, the main keyword in the first sentence, short paragraphs, and bullet points. 400-800 characters.",
-        ),
+        .describe("Rewritten Etsy description, 400-800 chars, hook + bullets."),
       optimizedTags: z
-        .array(z.string().max(20))
-        .length(13)
-        .describe("Exactly 13 unique Etsy tags, each max 20 characters, prefer multi-word long-tail phrases."),
+        .array(z.string())
+        .describe("Exactly 13 unique Etsy tags, each at most 20 characters, lowercase, multi-word preferred."),
       fixGuide: z
         .array(z.string())
-        .min(3)
-        .max(8)
-        .describe(
-          "Numbered, plain-English step-by-step instructions a non-technical seller can follow to improve their listing.",
-        ),
+        .describe("3-8 plain-English step-by-step fix instructions."),
     });
 
     let aiResult: z.infer<typeof schema>;
@@ -302,8 +293,21 @@ Produce an optimized title, description, 13 tags, and a step-by-step fix guide.`
       fixGuide: aiResult.fixGuide,
       optimizedTitle: aiResult.optimizedTitle.slice(0, 140),
       optimizedDescription: aiResult.optimizedDescription,
-      optimizedTags: aiResult.optimizedTags
-        .map((t) => t.toLowerCase().trim().slice(0, 20))
-        .slice(0, 13),
+      optimizedTags: normalizeTags(aiResult.optimizedTags, tagsList),
     };
   });
+
+function normalizeTags(aiTags: string[], fallback: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const add = (raw: string) => {
+    const t = raw.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().slice(0, 20);
+    if (t && !seen.has(t)) {
+      seen.add(t);
+      out.push(t);
+    }
+  };
+  aiTags.forEach(add);
+  fallback.forEach(add);
+  return out.slice(0, 13);
+}
