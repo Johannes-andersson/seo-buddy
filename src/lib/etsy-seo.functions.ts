@@ -242,25 +242,16 @@ export const analyzeEtsy = createServerFn({ method: "POST" })
     // AI rewrites
     const gateway = createLovableAiGatewayProvider(apiKey);
     const schema = z.object({
-      optimizedTitle: z
-        .string()
-        .describe("Rewritten Etsy listing title, max 140 characters, keyword-front-loaded, no ALL CAPS."),
+      optimizedTitle: z.string().describe("Rewritten Etsy title, up to 140 chars."),
       optimizedDescription: z
         .string()
-        .describe(
-          "Rewritten Etsy description with a strong hook, the main keyword in the first sentence, short paragraphs, and bullet points. 400-800 characters.",
-        ),
+        .describe("Rewritten Etsy description, 400-800 chars, hook + bullets."),
       optimizedTags: z
-        .array(z.string().max(20))
-        .length(13)
-        .describe("Exactly 13 unique Etsy tags, each max 20 characters, prefer multi-word long-tail phrases."),
+        .array(z.string())
+        .describe("Exactly 13 unique Etsy tags, each at most 20 characters, lowercase, multi-word preferred."),
       fixGuide: z
         .array(z.string())
-        .min(3)
-        .max(8)
-        .describe(
-          "Numbered, plain-English step-by-step instructions a non-technical seller can follow to improve their listing.",
-        ),
+        .describe("3-8 plain-English step-by-step fix instructions."),
     });
 
     let aiResult: z.infer<typeof schema>;
