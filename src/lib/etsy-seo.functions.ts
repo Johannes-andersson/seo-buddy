@@ -293,8 +293,21 @@ Produce an optimized title, description, 13 tags, and a step-by-step fix guide.`
       fixGuide: aiResult.fixGuide,
       optimizedTitle: aiResult.optimizedTitle.slice(0, 140),
       optimizedDescription: aiResult.optimizedDescription,
-      optimizedTags: aiResult.optimizedTags
-        .map((t) => t.toLowerCase().trim().slice(0, 20))
-        .slice(0, 13),
+      optimizedTags: normalizeTags(aiResult.optimizedTags, tagsList),
     };
   });
+
+function normalizeTags(aiTags: string[], fallback: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const add = (raw: string) => {
+    const t = raw.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().slice(0, 20);
+    if (t && !seen.has(t)) {
+      seen.add(t);
+      out.push(t);
+    }
+  };
+  aiTags.forEach(add);
+  fallback.forEach(add);
+  return out.slice(0, 13);
+}
