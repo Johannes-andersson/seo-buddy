@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { generateText, Output } from "ai";
+import { generateText } from "ai";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 
 export type CheckStatus = "good" | "warn" | "bad";
@@ -242,25 +242,18 @@ export const analyzeEtsy = createServerFn({ method: "POST" })
     // AI rewrites
     const gateway = createLovableAiGatewayProvider(apiKey);
     const schema = z.object({
-      optimizedTitle: z.string().describe("Rewritten Etsy title, up to 140 chars."),
-      optimizedDescription: z
-        .string()
-        .describe("Rewritten Etsy description, 400-800 chars, hook + bullets."),
-      optimizedTags: z
-        .array(z.string())
-        .describe("Exactly 13 unique Etsy tags, each at most 20 characters, lowercase, multi-word preferred."),
-      fixGuide: z
-        .array(z.string())
-        .describe("3-8 plain-English step-by-step fix instructions."),
+      optimizedTitle: z.string(),
+      optimizedDescription: z.string(),
+      optimizedTags: z.array(z.string()),
+      fixGuide: z.array(z.string()),
     });
 
     let aiResult: z.infer<typeof schema>;
     try {
-      const { experimental_output } = await generateText({
+      const { text } = await generateText({
         model: gateway("google/gemini-3-flash-preview"),
-        experimental_output: Output.object({ schema }),
         system:
-          "You are an expert Etsy SEO optimizer. You rewrite listings to rank higher in Etsy search while staying honest and on-brand. Tags must be lowercase, max 20 chars, multi-word phrases preferred, unique, no punctuation.",
+          'You are an expert Etsy SEO optimizer. Reply ONLY with a valid JSON object — no markdown, no commentary — matching this shape: {"optimizedTitle": string (<=140 chars), "optimizedDescription": string (400-800 chars with line breaks), "optimizedTags": string[] (exactly 13 unique, lowercase, each <=20 chars, multi-word preferred, no punctuation), "fixGuide": string[] (3-8 plain-English step-by-step instructions)}.',
         prompt: `Optimize this Etsy listing.
 
 CURRENT TITLE:
@@ -276,9 +269,9 @@ MAIN KEYWORD TO RANK FOR: ${data.keyword || "(not specified — infer from listi
 ISSUES FOUND:
 ${issues.length ? issues.map((i, n) => `${n + 1}. ${i}`).join("\n") : "Generally healthy, but make it stronger."}
 
-Produce an optimized title, description, 13 tags, and a step-by-step fix guide.`,
+Return ONLY the JSON object — no prose, no \`\`\` fences.`,
       });
-      aiResult = experimental_output;
+      aiResult = schema.parse(extractJson(text));
     } catch (err) {
       const msg = err instanceof Error ? err.message : "AI request failed";
       if (msg.includes("429")) throw new Error("AI is busy right now — please try again in a moment.");
@@ -310,4 +303,17 @@ function normalizeTags(aiTags: string[], fallback: string[]): string[] {
   aiTags.forEach(add);
   fallback.forEach(add);
   return out.slice(0, 13);
+}
+
+function extractJson(text: string): unknown {
+  let s = text.replace(/```json\s*/gi, "").replace(/```/g, "").trim();
+  const start = s.search(/[\{\[]/);
+  const end = s.lastIndexOf(s[start] === "[" ? "]" : "}");
+  if (start === -1 || end === -1) throw new Error("No JSON in response");
+  s = s.substring(start, end + 1);
+  try {
+    return JSON.parse(s);
+  } catch {
+    return JSON.parse(s.replace(/,\s*([}\]])/g, "$1").replace(/[\x00-\x1F\x7F]/g, ""));
+  }
 }
