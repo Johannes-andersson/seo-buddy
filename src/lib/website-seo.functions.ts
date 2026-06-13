@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { parse, type HTMLElement } from "node-html-parser";
+import { promises as dns } from "node:dns";
+import net from "node:net";
 
 export type CheckStatus = "good" | "warn" | "bad";
 
@@ -34,6 +36,66 @@ const STOPWORDS = new Set(
 
 const SEVERITY: Record<CheckStatus, number> = { bad: 0, warn: 1, good: 2 };
 
+function isPrivateIp(ip: string): boolean {
+  const v = net.isIP(ip);
+  if (v === 4) {
+    const p = ip.split(".").map(Number);
+    if (p[0] === 10) return true;
+    if (p[0] === 127) return true;
+    if (p[0] === 0) return true;
+    if (p[0] === 169 && p[1] === 254) return true;
+    if (p[0] === 172 && p[1] >= 16 && p[1] <= 31) return true;
+    if (p[0] === 192 && p[1] === 168) return true;
+    if (p[0] >= 224) return true; // multicast/reserved
+    return false;
+  }
+  if (v === 6) {
+    const lower = ip.toLowerCase();
+    if (lower === "::1" || lower === "::") return true;
+    if (lower.startsWith("fe80:") || lower.startsWith("fc") || lower.startsWith("fd")) return true;
+    if (lower.startsWith("::ffff:")) return isPrivateIp(lower.slice(7));
+    return false;
+  }
+  return false;
+}
+
+async function assertPublicUrl(rawUrl: string): Promise<void> {
+  let u: URL;
+  try {
+    u = new URL(rawUrl);
+  } catch {
+    throw new Error("Invalid URL");
+  }
+  if (u.protocol !== "http:" && u.protocol !== "https:") {
+    throw new Error("Only http(s) URLs are allowed");
+  }
+  const hostname = u.hostname.replace(/^\[|\]$/g, "");
+  const lower = hostname.toLowerCase();
+  if (
+    lower === "localhost" ||
+    lower.endsWith(".localhost") ||
+    lower.endsWith(".internal") ||
+    lower === "metadata.google.internal"
+  ) {
+    throw new Error("Host is not allowed");
+  }
+  let addrs: string[] = [];
+  if (net.isIP(hostname)) {
+    addrs = [hostname];
+  } else {
+    try {
+      const results = await dns.lookup(hostname, { all: true });
+      addrs = results.map((r) => r.address);
+    } catch {
+      throw new Error("Could not resolve hostname");
+    }
+  }
+  if (addrs.length === 0) throw new Error("Could not resolve hostname");
+  for (const a of addrs) {
+    if (isPrivateIp(a)) throw new Error("URL resolves to a private or internal address");
+  }
+}
+
 function getMeta(root: HTMLElement, name: string): string | null {
   const el =
     root.querySelector(`meta[name="${name}"]`) ||
@@ -52,6 +114,7 @@ export const analyzeWebsite = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }): Promise<WebsiteSeoResult> => {
+    await assertPublicUrl(data.url);
     let html: string;
     let finalUrl = data.url;
     try {
@@ -59,7 +122,7 @@ export const analyzeWebsite = createServerFn({ method: "POST" })
       const timeout = setTimeout(() => controller.abort(), 10_000);
       const res = await fetch(data.url, {
         signal: controller.signal,
-        redirect: "follow",
+        redirect: "manual",
         headers: {
           "User-Agent":
             "Mozilla/5.0 (compatible; SEOAnalyzerBot/1.0; +https://lovable.dev)",
@@ -67,11 +130,34 @@ export const analyzeWebsite = createServerFn({ method: "POST" })
         },
       });
       clearTimeout(timeout);
-      finalUrl = res.url || data.url;
-      if (!res.ok) {
-        throw new Error(`Site returned status ${res.status}`);
+      let current = res;
+      let currentUrl = data.url;
+      let hops = 0;
+      while (current.status >= 300 && current.status < 400 && hops < 5) {
+        const loc = current.headers.get("location");
+        if (!loc) break;
+        const next = new URL(loc, currentUrl).toString();
+        await assertPublicUrl(next);
+        currentUrl = next;
+        const c2 = new AbortController();
+        const t2 = setTimeout(() => c2.abort(), 10_000);
+        current = await fetch(next, {
+          signal: c2.signal,
+          redirect: "manual",
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (compatible; SEOAnalyzerBot/1.0; +https://lovable.dev)",
+            Accept: "text/html,application/xhtml+xml",
+          },
+        });
+        clearTimeout(t2);
+        hops++;
       }
-      html = await res.text();
+      finalUrl = currentUrl;
+      if (!current.ok) {
+        throw new Error(`Site returned status ${current.status}`);
+      }
+      html = await current.text();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Could not reach the URL";
       throw new Error(`Could not fetch the page: ${msg}`);
