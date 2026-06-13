@@ -77,9 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { title: "CEO Buddy" },
+      { name: "description", content: "SEO Buddy analyzes website and Etsy listings to provide actionable SEO improvement suggestions." },
+      { name: "author", content: "Lovable" },
+      { property: "og:title", content: "CEO Buddy" },
+      { property: "og:description", content: "SEO Buddy analyzes website and Etsy listings to provide actionable SEO improvement suggestions." },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "SEO Analyzer" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "CEO Buddy" },
+      { name: "twitter:description", content: "SEO Buddy analyzes website and Etsy listings to provide actionable SEO improvement suggestions." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1ea6dcdf-269a-48b0-a1f5-044c5a11965e/id-preview-3eab3e7f--6ff67f54-a319-4f5a-b471-e402c23ac8ec.lovable.app-1781338733425.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1ea6dcdf-269a-48b0-a1f5-044c5a11965e/id-preview-3eab3e7f--6ff67f54-a319-4f5a-b471-e402c23ac8ec.lovable.app-1781338733425.png" },
     ],
     links: [
       {
