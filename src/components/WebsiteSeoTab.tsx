@@ -45,6 +45,7 @@ export function WebsiteSeoTab() {
         <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:flex-row">
           <Input
             type="text"
+            aria-label="Website URL"
             placeholder="https://yourwebsite.com"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
