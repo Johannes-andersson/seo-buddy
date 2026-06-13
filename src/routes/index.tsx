@@ -14,10 +14,36 @@ export const Route = createFileRoute("/")({
         content:
           "Free SEO analyzer for websites and Etsy listings. Get a score, find issues, and follow a plain-English step-by-step fix guide.",
       },
-      { property: "og:title", content: "SEO Analyzer" },
+      { property: "og:title", content: "SEO Analyzer — Free Website & Etsy SEO Tool" },
       {
         property: "og:description",
         content: "Free SEO tool for websites and Etsy sellers.",
+      },
+      { property: "og:url", content: "https://seo-buddys.lovable.app/" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://seo-buddys.lovable.app/" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "SEO Analyzer",
+          url: "https://seo-buddys.lovable.app/",
+          description:
+            "Free SEO analyzer for websites and Etsy listings. Get a score, find issues, and follow a plain-English step-by-step fix guide.",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "SEO Analyzer",
+          url: "https://seo-buddys.lovable.app/",
+        }),
       },
     ],
   }),

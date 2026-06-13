@@ -45,6 +45,7 @@ export function WebsiteSeoTab() {
         <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:flex-row">
           <Input
             type="text"
+            aria-label="Website URL"
             placeholder="https://yourwebsite.com"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
@@ -72,9 +73,9 @@ export function WebsiteSeoTab() {
       {result && (
         <div id="ws-results" className="grid gap-6 lg:grid-cols-3">
           <Card className="p-6 lg:col-span-1">
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Overall SEO Score
-            </h3>
+            </h2>
             <div className="flex flex-col items-center gap-4">
               <SeoScore score={result.score} />
               <p className="text-center text-xs text-muted-foreground break-all">
@@ -94,17 +95,17 @@ export function WebsiteSeoTab() {
           </Card>
 
           <Card className="p-6 lg:col-span-2">
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               SEO Breakdown
-            </h3>
+            </h2>
             <CheckList items={result.checks} />
           </Card>
 
           {result.issues.length > 0 && (
             <Card className="p-6 lg:col-span-2">
-              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 What's Wrong
-              </h3>
+              </h2>
               <ul className="space-y-2 text-sm">
                 {result.issues.map((i, idx) => (
                   <li key={idx} className="flex gap-2">
@@ -118,9 +119,9 @@ export function WebsiteSeoTab() {
 
           {result.fixGuide.length > 0 && (
             <Card className="p-6 lg:col-span-3">
-              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 Step-by-Step Fix Guide
-              </h3>
+              </h2>
               <ol className="space-y-3">
                 {result.fixGuide.map((step, idx) => (
                   <li key={idx} className="flex gap-3">
@@ -136,9 +137,9 @@ export function WebsiteSeoTab() {
 
           {result.keywords.length > 0 && (
             <Card className="p-6 lg:col-span-3">
-              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 Top Keywords on Page
-              </h3>
+              </h2>
               <div className="flex flex-wrap gap-2">
                 {result.keywords.map((k) => (
                   <span

@@ -1,0 +1,9 @@
+# SEO Analyzer
+
+> Free SEO analyzer for websites and Etsy listings. Get a score, see what's wrong, and follow a plain-English step-by-step fix guide.
+
+SEO Analyzer is a free browser tool with two analyzers: a website SEO checker that fetches and grades any URL (title, description, headings, alt text, links, Open Graph, keyword density) and an Etsy listing optimizer that scores a title, description, and tags and returns AI-generated rewrites.
+
+## Pages
+
+- [Home](/): Run the website or Etsy SEO analyzer.

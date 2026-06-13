@@ -132,26 +132,26 @@ export function EtsySeoTab() {
       {result && (
         <div id="etsy-results" className="grid gap-6 lg:grid-cols-3">
           <Card className="p-6 lg:col-span-1">
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Current SEO Score
-            </h3>
+            </h2>
             <div className="flex justify-center">
               <SeoScore score={result.score} />
             </div>
           </Card>
 
           <Card className="p-6 lg:col-span-2">
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               SEO Breakdown
-            </h3>
+            </h2>
             <CheckList items={result.checks} />
           </Card>
 
           {result.issues.length > 0 && (
             <Card className="p-6 lg:col-span-3">
-              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 What's Wrong
-              </h3>
+              </h2>
               <ul className="space-y-2 text-sm">
                 {result.issues.map((i, idx) => (
                   <li key={idx} className="flex gap-2">
@@ -165,9 +165,9 @@ export function EtsySeoTab() {
 
           <Card className="p-6 lg:col-span-3">
             <div className="mb-3 flex items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 Optimized Title
-              </h3>
+              </h2>
               <Button
                 size="sm"
                 variant="ghost"
@@ -184,9 +184,9 @@ export function EtsySeoTab() {
 
           <Card className="p-6 lg:col-span-3">
             <div className="mb-3 flex items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 Optimized Description
-              </h3>
+              </h2>
               <Button
                 size="sm"
                 variant="ghost"
@@ -202,9 +202,9 @@ export function EtsySeoTab() {
 
           <Card className="p-6 lg:col-span-3">
             <div className="mb-3 flex items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 13 Optimized Tags
-              </h3>
+              </h2>
               <Button
                 size="sm"
                 variant="ghost"
@@ -227,9 +227,9 @@ export function EtsySeoTab() {
 
           {result.fixGuide.length > 0 && (
             <Card className="p-6 lg:col-span-3">
-              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 Step-by-Step Fix Guide
-              </h3>
+              </h2>
               <ol className="space-y-3">
                 {result.fixGuide.map((step, idx) => (
                   <li key={idx} className="flex gap-3">
