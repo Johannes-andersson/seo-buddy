@@ -406,7 +406,7 @@ export const analyzeWebsite = createServerFn({ method: "POST" })
     root.querySelectorAll("script,style,noscript").forEach((n) => n.remove());
     const text = root.text
       .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, " ")
+      .replace(/[^\p{L}\p{N}\s]/gu, " ")
       .split(/\s+/)
       .filter((w) => w.length > 3 && !STOPWORDS.has(w));
     const total = text.length || 1;
