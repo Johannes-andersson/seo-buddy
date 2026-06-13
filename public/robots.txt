@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://seo-buddys.lovable.app/sitemap.xml
